@@ -179,6 +179,8 @@ while (GAMESTATE == 0):             # Bienvenida al gato dummy
         print("Ficha elegida: "+ str(FICHA))
         FICHAS.append(FICHA)
 
+        CONN.send(str.encode("Tu turno es el: "+str(TURNO-NUM_PLAYERS)))
+
         while NUM_PLAYERS > 0:
             print ('Esperando '+str(NUM_PLAYERS)+' jugadores mas')
             CONN, ADDR = MYSOCKET.accept()
@@ -190,6 +192,7 @@ while (GAMESTATE == 0):             # Bienvenida al gato dummy
             FICHA = CONN.recv(BUFFERSIZE).decode('UTF-8')
             print("Ficha elegida: "+ str(FICHA))
             FICHAS.append(FICHA)
+            CONN.send(str.encode("Tu turno es el: "+str(TURNO-NUM_PLAYERS)))
             NUM_PLAYERS = NUM_PLAYERS - 1;
 
         if gd_data == 1:
@@ -224,14 +227,14 @@ while (GAMESTATE == 0):             # Bienvenida al gato dummy
         CONN = PLAYERS[TURNO]
 
         if THROWCOUNTER > 0:
-            actualizaPantallas(str.encode(tableToStr() +STATESTR))
+            actualizaPantallas(str.encode('Turno de:'+FICHAS[TURNO]+'\n'+tableToStr() +STATESTR))
             gt_data = CONN.recv(BUFFERSIZE).decode('UTF-8')
             print ("Tiro elegido: " + str(gt_data))
 
             if validPos(gt_data, FICHAS[TURNO]):
                 STATESTR = "Escribe la cordenada de tu siguiente tiro"
                 if gameFinished(FICHAS[TURNO]):
-                    WINNERSTR = tableToStr() + "Has ganado!\n"
+                    WINNERSTR = tableToStr() + "Has ganado " +FICHAS[0]+ "!\n"
                     GAMESTATE = 3
                 else:
                     THROWCOUNTER -= 1
