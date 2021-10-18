@@ -170,7 +170,7 @@ while (GAMESTATE == 0):             # Bienvenida al gato dummy
                         +"(1 - 10)"))
 
         NUM_PLAYERS = int(CONN.recv(BUFFERSIZE).decode('UTF-8'))
-        print("Jugadores totales: "+ str(NUM_PLAYERS))
+        print("Jugadores totales: "+ str(NUM_PLAYERS+1))
         TURNO = NUM_PLAYERS
 
         CONN.send(str.encode("Elige una ficha"))
@@ -179,7 +179,9 @@ while (GAMESTATE == 0):             # Bienvenida al gato dummy
         print("Ficha elegida: "+ str(FICHA))
         FICHAS.append(FICHA)
 
-        CONN.send(str.encode("Tu turno es el: "+str(TURNO-NUM_PLAYERS)))
+        n = 0
+        CONN.send(str.encode("Tu turno es el: "+str(n)))
+        n += 1
 
         while NUM_PLAYERS > 0:
             print ('Esperando '+str(NUM_PLAYERS)+' jugadores mas')
@@ -192,8 +194,9 @@ while (GAMESTATE == 0):             # Bienvenida al gato dummy
             FICHA = CONN.recv(BUFFERSIZE).decode('UTF-8')
             print("Ficha elegida: "+ str(FICHA))
             FICHAS.append(FICHA)
-            CONN.send(str.encode("Tu turno es el: "+str(TURNO-NUM_PLAYERS)))
+            CONN.send(str.encode("Tu turno es el: "+str(n)))
             NUM_PLAYERS = NUM_PLAYERS - 1;
+            n += 1
 
         if gd_data == 1:
             GAMEDIFFICULT = 1
@@ -209,6 +212,7 @@ while (GAMESTATE == 0):             # Bienvenida al gato dummy
             gd_data = ""
 
         NUM_PLAYERS = TURNO
+        n=0
         print ('Ficha elegida: ')
         for f in FICHAS:
             print (str(f))
