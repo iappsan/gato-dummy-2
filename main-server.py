@@ -46,11 +46,15 @@ def validPos(throwPos, playerChar):      # Verifica si la posicion es valida
         else:
             return False
     
-    if GAMETABLE[int(throwPos[1])][int(convertedPos)] == '-':
-        GAMETABLE[int(throwPos[1])][int(convertedPos)] = playerChar
-        print("pos valida "+throwPos[1]+convertedPos)
-        return True
-    else:
+    try:
+        if GAMETABLE[int(throwPos[1])][int(convertedPos)] == '-':
+            GAMETABLE[int(throwPos[1])][int(convertedPos)] = playerChar
+            print("pos valida "+throwPos[1]+convertedPos)
+            return True
+        else:
+            print("pos NO valida")
+            return False
+    except:
         print("pos NO valida")
         return False
 
@@ -137,7 +141,9 @@ def gameFinished(char2check):           # Se verifican las lineas
 
 def actualizaPantallas(msg):
     for player in PLAYERS:
+        msg2 = 'Tu eres: '+str(FICHAS[PLAYERS.index(player)])
         player.send(msg)
+
 
 print("En espera ... ")
 CONN, ADDR = MYSOCKET.accept()      # En espera de cliente
@@ -167,7 +173,7 @@ while (GAMESTATE == 0):             # Bienvenida al gato dummy
         print("Dificultad elegida: "+ str(gd_data))
 
         CONN.send(str.encode("Cuantos jugadores mas juegan?\n"
-                        +"(1 - 10)"))
+                        +"(1 - 9)"))
 
         NUM_PLAYERS = int(CONN.recv(BUFFERSIZE).decode('UTF-8'))
         print("Jugadores totales: "+ str(NUM_PLAYERS+1))
@@ -227,7 +233,8 @@ while (GAMESTATE == 0):             # Bienvenida al gato dummy
         else:
             GOOD_THROW = True
 
-        print ('Turno: ' + str(TURNO))
+        turnoStr = str('Turno: ' + str(TURNO))
+        actualizaPantallas (str.encode(turnoStr))
         CONN = PLAYERS[TURNO]
 
         if THROWCOUNTER > 0:
