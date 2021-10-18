@@ -151,6 +151,7 @@ WINNERSTR = ""
 AGAINSTR = ""
 THROWCOUNTER = 0
 TURNO = 0
+GOOD_THROW = True
 
 while (GAMESTATE == 0):             # Bienvenida al gato dummy
 
@@ -211,10 +212,13 @@ while (GAMESTATE == 0):             # Bienvenida al gato dummy
 
     while GAMESTATE == 2:       # Desarrollo del juego
 
-        if TURNO == NUM_PLAYERS:
-            TURNO = 0
+        if GOOD_THROW :
+            if TURNO == NUM_PLAYERS:
+                TURNO = 0
+            else:
+                TURNO += 1
         else:
-            TURNO += 1
+            GOOD_THROW = True
 
         print ('Turno: ' + str(TURNO))
         CONN = PLAYERS[TURNO]
@@ -232,6 +236,7 @@ while (GAMESTATE == 0):             # Bienvenida al gato dummy
                 else:
                     THROWCOUNTER -= 1
             else:
+                GOOD_THROW = False
                 STATESTR = "No puedes tirar ahi\nElige un nuevo lugar"
         else:
             WINNERSTR = "Empate! Ya no quedan mas tiros\n"
