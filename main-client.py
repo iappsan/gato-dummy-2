@@ -7,6 +7,9 @@ BUFFERSIZE = 1024
 MYSOCKET = socket.socket()
 
 def receive(): # Recibe una actualizacion
+    global MYSOCKET
+    global BUFFERSIZE
+    
     while True:
         try:
             RESPONSE = MYSOCKET.recv(BUFFERSIZE).decode('UTF-8')
