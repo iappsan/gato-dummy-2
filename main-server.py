@@ -2,12 +2,12 @@ import socket
 from random import randrange
 import time
 
-HOST = "192.168.1.107"      # El hostname o IP del servidor
+HOST = "172.16.8.13"      # El hostname o IP del servidor
 PORT = 5432                 # El puerto que usa el servidor
 BUFFERSIZE = 1024           # Tamano del buffer
 MYSOCKET = socket.socket()  # Iniciamos el socket
 MYSOCKET.bind((HOST, PORT)) # Lo ligamos al host y al puerto
-MYSOCKET.listen(5)          # Definimos el numero de conecciones a escuchar
+MYSOCKET.listen(10)         # Definimos el numero de conecciones a escuchar
 GAMESTATE = 0               # Estado actual del juego
 GAMEDIFFICULT = 0           # Dificultad del juego
 TABLES = [[                 # Tableros
@@ -24,6 +24,8 @@ TABLES = [[                 # Tableros
             ['5','-','-','-','-','-']
         ]]
 GAMETABLE = TABLES[1]       # Inicializa un tablero
+PLAYERS =[]                 # Lista de jugadores
+FICHAS = []                 # Fichas de jugadores
 
 def validPos(throwPos, playerChar):      # Verifica si la posicion es valida
     convertedPos = ""
@@ -133,9 +135,13 @@ def gameFinished(char2check):           # Se verifican las lineas
     print("Aun no gana nadie")
     return False
 
+def actualizaPantallas(msg):
+    for player in PLAYERS:
+        player.send(msg)
 
 print("En espera ... ")
 CONN, ADDR = MYSOCKET.accept()      # En espera de cliente
+PLAYERS.append(CONN)
 INITIME = time.time()
 print ("Nueva conexion!")
 print (ADDR)
@@ -144,6 +150,7 @@ STATESTR = ""                       # Se inicializan valores para el juego
 WINNERSTR = ""
 AGAINSTR = ""
 THROWCOUNTER = 0
+TURNO = 0
 
 while (GAMESTATE == 0):             # Bienvenida al gato dummy
 
@@ -152,11 +159,36 @@ while (GAMESTATE == 0):             # Bienvenida al gato dummy
     THROWCOUNTER = 0
     GAMESTATE = 1
 
-    while GAMESTATE == 1:       # Preguntando por dificultad
+    while GAMESTATE == 1:       # Preguntando por dificultad y agregando jugadores
         CONN.send(str.encode("Bienvenido al Gato Dummy :)\n"
                         +"Elige dificultad\n(1) Normal\n(2) Avanzado"))
         gd_data = int(CONN.recv(BUFFERSIZE).decode('UTF-8'))
         print("Dificultad elegida: "+ str(gd_data))
+
+        CONN.send(str.encode("Cuantos jugadores mas juegan?\n"
+                        +"(1 - 10)"))
+
+        NUM_PLAYERS = int(CONN.recv(BUFFERSIZE).decode('UTF-8'))
+        print("Jugadores totales: "+ str(NUM_PLAYERS))
+        TURNO = NUM_PLAYERS
+
+        CONN.send(str.encode("Elige una ficha\n"))
+
+        FICHA = CONN.recv(BUFFERSIZE).decode('UTF-8')
+        print("Ficha elegida: "+ str(FICHA))
+        FICHAS.append(FICHA)
+
+        while NUM_PLAYERS > 0:
+            CONN, ADDR = MYSOCKET.accept()
+            PLAYERS.append(CONN)
+            print ("Nueva conexion!")
+            print (ADDR)
+            CONN.send(str.encode("Elige una ficha\n"))
+
+            FICHA = CONN.recv(BUFFERSIZE).decode('UTF-8')
+            print("Ficha elegida: "+ str(FICHA))
+            FICHAS.append(FICHA)
+            NUM_PLAYERS = NUM_PLAYERS - 1;
 
         if gd_data == 1:
             GAMEDIFFICULT = 1
@@ -170,24 +202,34 @@ while (GAMESTATE == 0):             # Bienvenida al gato dummy
             GAMETABLE = TABLES[1]
         else:
             gd_data = ""
-    
+
+        NUM_PLAYERS = TURNO
+        print ('Ficha elegida: ')
+        for f in FICHAS:
+            print (str(f))
+
     while GAMESTATE == 2:       # Desarrollo del juego
+
+        if TURNO == NUM_PLAYERS:
+            TURNO = 0
+        else:
+            TURNO += 1
+
+        print ('Turno: ' + str(TURNO))
+        CONN = PLAYERS[TURNO]
+
         if THROWCOUNTER > 0:
-            CONN.send(str.encode(tableToStr() +STATESTR))
+            actualizaPantallas(str.encode(tableToStr() +STATESTR))
             gt_data = CONN.recv(BUFFERSIZE).decode('UTF-8')
             print ("Tiro elegido: " + str(gt_data))
 
-            if validPos(gt_data, 'x'):
+            if validPos(gt_data, FICHAS[TURNO]):
                 STATESTR = "Escribe la cordenada de tu siguiente tiro"
-                if gameFinished('x'):
+                if gameFinished(FICHAS[TURNO]):
                     WINNERSTR = tableToStr() + "Has ganado!\n"
                     GAMESTATE = 3
                 else:
                     THROWCOUNTER -= 1
-                    pcThrow()
-                    if gameFinished('o'):
-                        WINNERSTR =  tableToStr() + "Te han ganado!\n"
-                        GAMESTATE = 3
             else:
                 STATESTR = "No puedes tirar ahi\nElige un nuevo lugar"
         else:

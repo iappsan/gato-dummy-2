@@ -1,6 +1,6 @@
 import socket
 
-HOST = "192.168.1.107"
+HOST = "172.16.8.13"
 PORT = 5432
 BUFFERSIZE = 1024
 MYSOCKET = socket.socket()
