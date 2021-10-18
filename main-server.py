@@ -194,12 +194,12 @@ while (GAMESTATE == 0):             # Bienvenida al gato dummy
         if gd_data == 1:
             GAMEDIFFICULT = 1
             GAMESTATE = 2
-            THROWCOUNTER = 5
+            THROWCOUNTER = 9
             GAMETABLE = TABLES[0]
         elif gd_data == 2:
             GAMEDIFFICULT = 2
             GAMESTATE = 2
-            THROWCOUNTER = 13
+            THROWCOUNTER = 25
             GAMETABLE = TABLES[1]
         else:
             gd_data = ""
