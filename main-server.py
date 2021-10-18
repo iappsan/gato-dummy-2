@@ -172,13 +172,14 @@ while (GAMESTATE == 0):             # Bienvenida al gato dummy
         print("Jugadores totales: "+ str(NUM_PLAYERS))
         TURNO = NUM_PLAYERS
 
-        CONN.send(str.encode("Elige una ficha\n"))
+        CONN.send(str.encode("Elige una ficha"))
 
         FICHA = CONN.recv(BUFFERSIZE).decode('UTF-8')
         print("Ficha elegida: "+ str(FICHA))
         FICHAS.append(FICHA)
 
         while NUM_PLAYERS > 0:
+            print ('Esperando '+str(NUM_PLAYERS)+' jugadores mas')
             CONN, ADDR = MYSOCKET.accept()
             PLAYERS.append(CONN)
             print ("Nueva conexion!")

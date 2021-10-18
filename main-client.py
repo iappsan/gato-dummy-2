@@ -1,9 +1,18 @@
 import socket
+from threading import Thread
 
 HOST = "172.16.8.13"
 PORT = 5432
 BUFFERSIZE = 1024
 MYSOCKET = socket.socket()
+
+def receive(): # Recibe una actualizacion
+    while True:
+        try:
+            RESPONSE = MYSOCKET.recv(BUFFERSIZE).decode('UTF-8')
+            print (RESPONSE)
+        except OSError:
+            break
 
 def main():
     print("Introduce la direccion IP del servidor")
@@ -12,9 +21,10 @@ def main():
     PORT = int(input())
     MYSOCKET.connect((HOST, PORT))
 
+    RECV_THREAD = Thread(target=receive)
+    RECV_THREAD.start()
+
     while True:
-        RESPONSE = MYSOCKET.recv(BUFFERSIZE).decode('UTF-8')
-        print (RESPONSE)
         inputStr = input()
         MYSOCKET.send(str.encode(inputStr))
 
