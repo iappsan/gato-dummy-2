@@ -237,9 +237,10 @@ while (GAMESTATE == 0):             # Bienvenida al gato dummy
             GAMESTATE = 3
 
     while GAMESTATE == 3:       # Quieres jugar de nuevo?
+        CONN = PLAYERS[0]
         ENDTIME = time.time()
         AGAINSTR = WINNERSTR + "La partida ha durado " + str(ENDTIME-INITIME) + " segundos\n" + AGAINSTR
-        CONN.send(str.encode(AGAINSTR))
+        actualizaPantallas(str.encode(AGAINSTR))
         ng_data = int(CONN.recv(BUFFERSIZE).decode('UTF-8'))
 
         if ng_data == 1:
@@ -248,4 +249,6 @@ while (GAMESTATE == 0):             # Bienvenida al gato dummy
         elif ng_data == 2:
             print("Bye")
             GAMESTATE = 4
-CONN.close();
+
+for p in PLAYERS:
+    p.close();
